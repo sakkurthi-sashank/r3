@@ -89,8 +89,10 @@ export function SignInForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="border-0">
         <CardHeader className="gap-1 text-left">
-          <CardTitle className="text-xl">Welcome back!</CardTitle>
-          <CardDescription>Login with your Google account</CardDescription>
+          <CardTitle className="text-2xl font-semibold">
+            Sign in to your account
+          </CardTitle>
+          <CardDescription>Use your Google account to continue</CardDescription>
         </CardHeader>
 
         <CardContent>
@@ -103,7 +105,7 @@ export function SignInForm({
                   onClick={signInWithGoogle}
                 >
                   <GoogleIcon />
-                  Login with Google
+                  Sign In with Google
                 </Button>
               </Field>
 
@@ -175,7 +177,7 @@ export function SignInForm({
 
                 <Field>
                   <Button type="submit" className="w-full">
-                    Login
+                    Sign In
                   </Button>
                   <FieldDescription className="text-center">
                     Don&apos;t have an account?{" "}
@@ -197,14 +199,14 @@ export function SignInForm({
         By clicking continue, you agree to our{" "}
         <Link
           href="/"
-          className="hover:text-background underline underline-offset-4"
+          className="hover:text-background underline underline-offset-4 transition-colors"
         >
           Terms of Service
         </Link>{" "}
         and{" "}
         <Link
           href="/"
-          className="hover:text-background underline underline-offset-4"
+          className="hover:text-background underline underline-offset-4 transition-colors"
         >
           Privacy Policy
         </Link>
