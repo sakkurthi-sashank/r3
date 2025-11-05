@@ -1,23 +1,6 @@
 "use client";
 
 import * as React from "react";
-import {
-  IconCamera,
-  IconChartBar,
-  IconDashboard,
-  IconDatabase,
-  IconFileAi,
-  IconFileDescription,
-  IconFileWord,
-  IconFolder,
-  IconHelp,
-  IconInnerShadowTop,
-  IconListDetails,
-  IconReport,
-  IconSearch,
-  IconSettings,
-  IconUsers,
-} from "@tabler/icons-react";
 
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
@@ -30,12 +13,39 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { usePathname } from "next/navigation";
+import { IconFile, IconLayoutDashboard } from "@tabler/icons-react";
 
 const data = {
-  navMain: [],
+  navMain: [
+    {
+      title: "Dashboard",
+      href: "/",
+      icon: IconLayoutDashboard,
+      active: false,
+    },
+    {
+      title: "File Uploads",
+      href: "/uploads",
+      icon: IconFile,
+      active: false,
+    },
+  ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname();
+
+  const dataWithActiveStates = React.useMemo(() => {
+    return {
+      ...data,
+      navMain: data.navMain.map((item) => ({
+        ...item,
+        active: item.href === pathname,
+      })),
+    };
+  }, [pathname]);
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader className="h-(--header-height) border-b">
@@ -49,9 +59,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={dataWithActiveStates.navMain} />
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="border-t">
         <NavUser />
       </SidebarFooter>
     </Sidebar>

@@ -6,10 +6,17 @@ import { authClient } from "@/lib/auth-client";
 import { Loading } from "@/components/loading";
 import { useRouter } from "next/navigation";
 import { SiteHeader } from "./components/site-header";
+import { useEffect } from "react";
 
 export default function MainLayout() {
   const { data: session, isPending, error } = authClient.useSession();
   const router = useRouter();
+
+  useEffect(() => {
+    if (!isPending && !session?.user) {
+      router.push("/signin");
+    }
+  }, [isPending, session, router]);
 
   if (isPending) {
     return (
@@ -20,7 +27,6 @@ export default function MainLayout() {
   }
 
   if (!session?.user) {
-    router.push("/signin");
     return null;
   }
 

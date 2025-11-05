@@ -22,10 +22,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
-import { createAuthClient } from "better-auth/client";
 import { GoogleIcon } from "@/components/ui/icons/google";
 import { env } from "@/env";
 import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 
 const formSchema = z.object({
   name: z
@@ -47,7 +47,6 @@ export function SignUpForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const authClient = createAuthClient();
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -76,7 +75,8 @@ export function SignUpForm({
     });
 
     if (response.data?.user) {
-      router.push("/");
+      // Redirect to verify email page if email verification is required
+      router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
       return;
     }
 
@@ -168,17 +168,7 @@ export function SignUpForm({
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
-                      <div className="flex items-center">
-                        <FieldLabel htmlFor="form-password">
-                          Password
-                        </FieldLabel>
-                        <Link
-                          href="#"
-                          className="text-foreground ml-auto text-sm underline-offset-4 hover:underline"
-                        >
-                          Forgot your password?
-                        </Link>
-                      </div>
+                      <FieldLabel htmlFor="form-password">Password</FieldLabel>
                       <Input
                         {...field}
                         id="form-password"

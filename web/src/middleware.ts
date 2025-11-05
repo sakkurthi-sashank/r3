@@ -22,7 +22,10 @@ export const config = {
      * - favicon.ico, *.svg, *.png, *.jpg, *.jpeg, *.gif, *.webp (image files)
      * - signin (signin page)
      * - signup (signup page)
+     * - forgot-password (forgot password page)
+     * - reset-password (reset password page)
+     * - verify-email (email verification page)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$|signin|signup).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$|signin|signup|forgot-password|reset-password|verify-email).*)",
   ],
 };
