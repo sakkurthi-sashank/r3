@@ -8,6 +8,9 @@ import { env } from "@/env";
 const resend = new Resend(env.RESEND_API_KEY);
 
 export const auth = betterAuth({
+  advanced: {
+    cookiePrefix: "auth-token",
+  },
   plugins: [nextCookies()],
   database: prismaAdapter(prisma, {
     provider: "postgresql",
