@@ -23,7 +23,7 @@ import * as z from "zod";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 const formSchema = z
   .object({
@@ -45,7 +45,6 @@ export function ResetPasswordForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [isSuccess, setIsSuccess] = useState(false);
   const [tokenError, setTokenError] = useState(false);
@@ -62,7 +61,9 @@ export function ResetPasswordForm({
 
   useEffect(() => {
     const error = searchParams.get("error");
-    if (error === "INVALID_TOKEN") {
+    const token = searchParams.get("token");
+
+    if (error === "INVALID_TOKEN" || !token) {
       setTokenError(true);
     }
   }, [searchParams]);
@@ -110,8 +111,8 @@ export function ResetPasswordForm({
               Invalid or expired link
             </CardTitle>
             <CardDescription>
-              This password reset link is invalid or has expired. Please request
-              a new one.
+              This password reset link is invalid, missing, or has expired.
+              Please request a new one.
             </CardDescription>
           </CardHeader>
 
