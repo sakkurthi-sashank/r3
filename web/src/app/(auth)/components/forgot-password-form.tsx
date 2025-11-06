@@ -37,6 +37,7 @@ export function ForgotPasswordForm({
   ...props
 }: React.ComponentProps<"div">) {
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -47,22 +48,27 @@ export function ForgotPasswordForm({
   });
 
   const handleForgotPassword = async (data: z.infer<typeof formSchema>) => {
-    const response = await authClient.requestPasswordReset({
-      email: data.email,
-      redirectTo: "/reset-password",
-    });
-
-    if (response.data) {
-      setIsSuccess(true);
-      return;
-    }
-
-    if (response.error) {
-      form.setError("root", {
-        message:
-          response.error.message ??
-          "An error occurred while sending the reset email. Please try again.",
+    setIsLoading(true);
+    try {
+      const response = await authClient.requestPasswordReset({
+        email: data.email,
+        redirectTo: "/reset-password",
       });
+
+      if (response.data) {
+        setIsSuccess(true);
+        return;
+      }
+
+      if (response.error) {
+        form.setError("root", {
+          message:
+            response.error.message ??
+            "An error occurred while sending the reset email. Please try again.",
+        });
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -136,6 +142,7 @@ export function ForgotPasswordForm({
                         aria-invalid={fieldState.invalid}
                         placeholder="example@email.com"
                         autoComplete="email"
+                        disabled={isLoading}
                       />
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
@@ -152,8 +159,8 @@ export function ForgotPasswordForm({
                 )}
 
                 <Field>
-                  <Button type="submit" className="w-full">
-                    Send Reset Link
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? "Sending..." : "Send Reset Link"}
                   </Button>
                   <FieldDescription className="text-center">
                     Remember your password?{" "}
@@ -170,24 +177,6 @@ export function ForgotPasswordForm({
           </form>
         </CardContent>
       </Card>
-
-      <div className="text-muted-foreground px-6 text-center text-sm">
-        By clicking continue, you agree to our{" "}
-        <Link
-          href="/"
-          className="hover:text-background underline underline-offset-4 transition-colors"
-        >
-          Terms of Service
-        </Link>{" "}
-        and{" "}
-        <Link
-          href="/"
-          className="hover:text-background underline underline-offset-4 transition-colors"
-        >
-          Privacy Policy
-        </Link>
-        .
-      </div>
     </div>
   );
 }

@@ -29,11 +29,11 @@ const formSchema = z
   .object({
     password: z
       .string()
-      .min(8, { message: "Password must be at least 8 characters." })
+      .min(6, { message: "Password must be at least 6 characters." })
       .max(128, { message: "Password is too long." }),
     confirmPassword: z
       .string()
-      .min(8, { message: "Password must be at least 8 characters." })
+      .min(6, { message: "Password must be at least 6 characters." })
       .max(128, { message: "Password is too long." }),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -49,6 +49,7 @@ export function ResetPasswordForm({
   const searchParams = useSearchParams();
   const [isSuccess, setIsSuccess] = useState(false);
   const [tokenError, setTokenError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -76,22 +77,27 @@ export function ResetPasswordForm({
       return;
     }
 
-    const response = await authClient.resetPassword({
-      newPassword: data.password,
-      token,
-    });
-
-    if (response.data) {
-      setIsSuccess(true);
-      return;
-    }
-
-    if (response.error) {
-      form.setError("root", {
-        message:
-          response.error.message ??
-          "An error occurred while resetting your password. Please try again.",
+    setIsLoading(true);
+    try {
+      const response = await authClient.resetPassword({
+        newPassword: data.password,
+        token,
       });
+
+      if (response.data) {
+        setIsSuccess(true);
+        return;
+      }
+
+      if (response.error) {
+        form.setError("root", {
+          message:
+            response.error.message ??
+            "An error occurred while resetting your password. Please try again.",
+        });
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -140,8 +146,8 @@ export function ResetPasswordForm({
               Password reset successful
             </CardTitle>
             <CardDescription>
-              Your password has been successfully reset. You can now sign in with
-              your new password.
+              Your password has been successfully reset. You can now sign in
+              with your new password.
             </CardDescription>
           </CardHeader>
 
@@ -167,7 +173,7 @@ export function ResetPasswordForm({
             Set new password
           </CardTitle>
           <CardDescription>
-            Enter your new password below. Make sure it&apos;s at least 8
+            Enter your new password below. Make sure it&apos;s at least 6
             characters long.
           </CardDescription>
         </CardHeader>
@@ -191,6 +197,7 @@ export function ResetPasswordForm({
                         aria-invalid={fieldState.invalid}
                         placeholder="Enter your new password"
                         autoComplete="new-password"
+                        disabled={isLoading}
                       />
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
@@ -214,6 +221,7 @@ export function ResetPasswordForm({
                         aria-invalid={fieldState.invalid}
                         placeholder="Confirm your new password"
                         autoComplete="new-password"
+                        disabled={isLoading}
                       />
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
@@ -230,8 +238,8 @@ export function ResetPasswordForm({
                 )}
 
                 <Field>
-                  <Button type="submit" className="w-full">
-                    Reset Password
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? "Resetting..." : "Reset Password"}
                   </Button>
                   <FieldDescription className="text-center">
                     <Link
@@ -247,24 +255,6 @@ export function ResetPasswordForm({
           </form>
         </CardContent>
       </Card>
-
-      <div className="text-muted-foreground px-6 text-center text-sm">
-        By clicking continue, you agree to our{" "}
-        <Link
-          href="/"
-          className="hover:text-background underline underline-offset-4 transition-colors"
-        >
-          Terms of Service
-        </Link>{" "}
-        and{" "}
-        <Link
-          href="/"
-          className="hover:text-background underline underline-offset-4 transition-colors"
-        >
-          Privacy Policy
-        </Link>
-        .
-      </div>
     </div>
   );
 }

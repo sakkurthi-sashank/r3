@@ -26,6 +26,7 @@ import { GoogleIcon } from "@/components/ui/icons/google";
 import { env } from "@/env";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import React from "react";
 
 const formSchema = z.object({
   email: z
@@ -44,6 +45,7 @@ export function SignInForm({
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter();
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -55,31 +57,41 @@ export function SignInForm({
   });
 
   const signInWithGoogle = async () => {
-    await authClient.signIn.social({
-      provider: "google",
-      callbackURL: env.NEXT_PUBLIC_BASE_URL,
-    });
+    setIsLoading(true);
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: env.NEXT_PUBLIC_BASE_URL,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const signInWithEmail = async (data: z.infer<typeof formSchema>) => {
-    const response = await authClient.signIn.email({
-      email: data.email,
-      password: data.password,
-      callbackURL: env.NEXT_PUBLIC_BASE_URL,
-      rememberMe: true,
-    });
-
-    if (response.data?.user) {
-      router.push("/");
-      return;
-    }
-
-    if (response.error) {
-      form.setError("root", {
-        message:
-          response.error.message ??
-          "An error occurred during sign up. Please try again.",
+    setIsLoading(true);
+    try {
+      const response = await authClient.signIn.email({
+        email: data.email,
+        password: data.password,
+        callbackURL: env.NEXT_PUBLIC_BASE_URL,
+        rememberMe: true,
       });
+
+      if (response.data?.user) {
+        router.push("/");
+        return;
+      }
+
+      if (response.error) {
+        form.setError("root", {
+          message:
+            response.error.message ??
+            "An error occurred during sign up. Please try again.",
+        });
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -101,6 +113,7 @@ export function SignInForm({
                   variant="outline"
                   type="button"
                   onClick={signInWithGoogle}
+                  disabled={isLoading}
                 >
                   <GoogleIcon />
                   Sign In with Google
@@ -127,6 +140,7 @@ export function SignInForm({
                         aria-invalid={fieldState.invalid}
                         placeholder="example@email.com"
                         autoComplete="email"
+                        disabled={isLoading}
                       />
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
@@ -158,6 +172,7 @@ export function SignInForm({
                         aria-invalid={fieldState.invalid}
                         placeholder="Enter your password"
                         autoComplete="current-password"
+                        disabled={isLoading}
                       />
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
@@ -174,8 +189,8 @@ export function SignInForm({
                 )}
 
                 <Field>
-                  <Button type="submit" className="w-full">
-                    Sign In
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? "Signing In..." : "Sign In"}
                   </Button>
                   <FieldDescription className="text-center">
                     Don&apos;t have an account?{" "}
@@ -192,24 +207,6 @@ export function SignInForm({
           </form>
         </CardContent>
       </Card>
-
-      <div className="text-muted-foreground px-6 text-center text-sm">
-        By clicking continue, you agree to our{" "}
-        <Link
-          href="/"
-          className="hover:text-background underline underline-offset-4 transition-colors"
-        >
-          Terms of Service
-        </Link>{" "}
-        and{" "}
-        <Link
-          href="/"
-          className="hover:text-background underline underline-offset-4 transition-colors"
-        >
-          Privacy Policy
-        </Link>
-        .
-      </div>
     </div>
   );
 }

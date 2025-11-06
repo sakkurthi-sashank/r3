@@ -26,6 +26,7 @@ import { GoogleIcon } from "@/components/ui/icons/google";
 import { env } from "@/env";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import React from "react";
 
 const formSchema = z.object({
   name: z
@@ -39,7 +40,7 @@ const formSchema = z.object({
     .max(256, { message: "Email is too long." }),
   password: z
     .string()
-    .min(8, { message: "Password must be at least 8 characters." })
+    .min(6, { message: "Password must be at least 6 characters." })
     .max(128, { message: "Password is too long." }),
 });
 
@@ -48,6 +49,7 @@ export function SignUpForm({
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter();
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -60,32 +62,42 @@ export function SignUpForm({
   });
 
   const signUpWithGoogle = async () => {
-    await authClient.signIn.social({
-      provider: "google",
-      callbackURL: env.NEXT_PUBLIC_BASE_URL,
-    });
+    setIsLoading(true);
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: env.NEXT_PUBLIC_BASE_URL,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSignUp = async (data: z.infer<typeof formSchema>) => {
-    const response = await authClient.signUp.email({
-      name: data.name,
-      email: data.email,
-      password: data.password,
-      callbackURL: env.NEXT_PUBLIC_BASE_URL,
-    });
-
-    if (response.data?.user) {
-      // Redirect to verify email page if email verification is required
-      router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
-      return;
-    }
-
-    if (response.error) {
-      form.setError("root", {
-        message:
-          response.error.message ??
-          "An error occurred during sign up. Please try again.",
+    setIsLoading(true);
+    try {
+      const response = await authClient.signUp.email({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        callbackURL: env.NEXT_PUBLIC_BASE_URL,
       });
+
+      if (response.data?.user) {
+        // Redirect to verify email page if email verification is required
+        router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
+        return;
+      }
+
+      if (response.error) {
+        form.setError("root", {
+          message:
+            response.error.message ??
+            "An error occurred during sign up. Please try again.",
+        });
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -108,6 +120,7 @@ export function SignUpForm({
                   type="button"
                   onClick={signUpWithGoogle}
                   className="flex w-full items-center justify-center gap-2"
+                  disabled={isLoading}
                 >
                   <GoogleIcon />
                   Sign up with Google
@@ -132,6 +145,7 @@ export function SignUpForm({
                         aria-invalid={fieldState.invalid}
                         placeholder="Enter your name"
                         autoComplete="name"
+                        disabled={isLoading}
                       />
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
@@ -155,6 +169,7 @@ export function SignUpForm({
                         aria-invalid={fieldState.invalid}
                         placeholder="example@email.com"
                         autoComplete="email"
+                        disabled={isLoading}
                       />
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
@@ -176,6 +191,7 @@ export function SignUpForm({
                         aria-invalid={fieldState.invalid}
                         placeholder="Enter your password"
                         autoComplete="new-password"
+                        disabled={isLoading}
                       />
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
@@ -192,8 +208,8 @@ export function SignUpForm({
                 )}
 
                 <Field>
-                  <Button type="submit" className="w-full">
-                    Sign Up
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? "Signing Up..." : "Sign Up"}
                   </Button>
                   <FieldDescription className="text-center">
                     Already have an account?{" "}
@@ -210,24 +226,6 @@ export function SignUpForm({
           </form>
         </CardContent>
       </Card>
-
-      <div className="text-muted-foreground px-6 text-center text-sm">
-        By clicking continue, you agree to our{" "}
-        <Link
-          href="/"
-          className="hover:text-background underline underline-offset-4 transition-colors"
-        >
-          Terms of Service
-        </Link>{" "}
-        and{" "}
-        <Link
-          href="/"
-          className="hover:text-background underline underline-offset-4 transition-colors"
-        >
-          Privacy Policy
-        </Link>
-        .
-      </div>
     </div>
   );
 }

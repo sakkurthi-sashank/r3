@@ -5,6 +5,8 @@ import { nextCookies } from "better-auth/next-js";
 import { Resend } from "resend";
 import { env } from "@/env";
 
+const resend = new Resend(env.RESEND_API_KEY);
+
 export const auth = betterAuth({
   plugins: [nextCookies()],
   database: prismaAdapter(prisma, {
@@ -14,9 +16,8 @@ export const auth = betterAuth({
     requireEmailVerification: true,
     enabled: true,
     sendResetPassword: async ({ user, url, token }, request) => {
-      const resend = new Resend(env.RESEND_API_KEY as string);
       await resend.emails.send({
-        from: env.RESEND_FROM_EMAIL as string,
+        from: env.RESEND_FROM_EMAIL,
         to: user.email,
         subject: "Reset your password",
         html: `<p>Click <a href="${url}">here</a> to reset your password.</p>`,
@@ -25,9 +26,8 @@ export const auth = betterAuth({
   },
   emailVerification: {
     sendVerificationEmail: async ({ user, url, token }, request) => {
-      const resend = new Resend(env.RESEND_API_KEY as string);
       await resend.emails.send({
-        from: env.RESEND_FROM_EMAIL as string,
+        from: env.RESEND_FROM_EMAIL,
         to: user.email,
         subject: "Verify your email",
         html: `<p>Click <a href="${url}">here</a> to verify your email address.</p>`,
@@ -37,14 +37,14 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
   },
 
-  trustedOrigins: [process.env.NEXT_PUBLIC_BASE_URL!],
+  trustedOrigins: [env.NEXT_PUBLIC_BASE_URL],
   socialProviders: {
     google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: env.GOOGLE_CLIENT_ID,
+      clientSecret: env.GOOGLE_CLIENT_SECRET,
       accessType: "offline",
       prompt: "select_account",
     },
   },
-  baseURL: process.env.NEXT_PUBLIC_BASE_URL!,
+  baseURL: env.NEXT_PUBLIC_BASE_URL,
 });

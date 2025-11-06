@@ -72,24 +72,6 @@ export function VerifyEmailForm({
           </div>
         </CardContent>
       </Card>
-
-      <div className="text-muted-foreground px-6 text-center text-sm">
-        By clicking continue, you agree to our{" "}
-        <Link
-          href="/"
-          className="hover:text-background underline underline-offset-4 transition-colors"
-        >
-          Terms of Service
-        </Link>{" "}
-        and{" "}
-        <Link
-          href="/"
-          className="hover:text-background underline underline-offset-4 transition-colors"
-        >
-          Privacy Policy
-        </Link>
-        .
-      </div>
     </div>
   );
 }
