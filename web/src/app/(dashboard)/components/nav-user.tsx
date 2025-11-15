@@ -1,8 +1,16 @@
 "use client";
 
-import { IconDotsVertical, IconLogout } from "@tabler/icons-react";
+import {
+  IconDotsVertical,
+  IconLogout,
+  IconMoon,
+  IconSun,
+} from "@tabler/icons-react";
+import * as React from "react";
+import { useTheme } from "next-themes";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,16 +27,27 @@ import {
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { Label } from "@/components/ui/label";
 
 export const NavUser = () => {
   const { isMobile } = useSidebar();
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
 
   const { data: session } = authClient.useSession();
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSignOut = async () => {
     await authClient.signOut();
     router.push("/signin");
+  };
+
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
   };
 
   return (
@@ -91,6 +110,28 @@ export const NavUser = () => {
             <DropdownMenuItem onClick={handleSignOut}>
               <IconLogout />
               Log out
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={(e) => e.preventDefault()}>
+              <div className="flex w-full items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="theme-toggle" className="cursor-pointer">
+                    Theme
+                  </Label>
+                </div>
+                {mounted && (
+                  <div className="flex items-center gap-2">
+                    <IconSun className="text-muted-foreground size-4" />
+                    <Switch
+                      id="theme-toggle"
+                      checked={theme === "dark"}
+                      onCheckedChange={toggleTheme}
+                      aria-label="Toggle theme"
+                    />
+                    <IconMoon className="text-muted-foreground size-4" />
+                  </div>
+                )}
+              </div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

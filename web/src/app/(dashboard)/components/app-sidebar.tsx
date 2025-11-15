@@ -9,9 +9,7 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { usePathname } from "next/navigation";
 import { IconFile, IconLayoutDashboard } from "@tabler/icons-react";
@@ -48,15 +46,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
-      <SidebarHeader className="h-(--header-height) border-b">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            ></SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+      <SidebarHeader className="flex h-(--header-height) w-full flex-row items-center justify-between border-b">
+        <div></div>
+        <SidebarTrigger className="-ml-1" />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={dataWithActiveStates.navMain} />

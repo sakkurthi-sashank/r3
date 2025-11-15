@@ -30,17 +30,17 @@ export function NavMain({
       <SidebarGroup>
         <SidebarGroupContent className="flex flex-col gap-2">
           <SidebarMenu>
-            <SidebarMenuItem className="flex items-center">
+            {/* <SidebarMenuItem className="flex items-center">
               <Button variant="default" size="sm" className="h-9 w-full">
                 <IconEdit className="h-5 w-5" />
                 <span>New Chat</span>
               </Button>
-            </SidebarMenuItem>
+            </SidebarMenuItem> */}
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
       <SidebarGroup>
-        <SidebarGroupLabel>Main</SidebarGroupLabel>
+        {/* <SidebarGroupLabel>Main</SidebarGroupLabel>
         <SidebarGroupContent className="flex flex-col gap-2">
           <SidebarMenu>
             {items.map((item) => (
@@ -57,7 +57,7 @@ export function NavMain({
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
-        </SidebarGroupContent>
+        </SidebarGroupContent> */}
       </SidebarGroup>
     </>
   );

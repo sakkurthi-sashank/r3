@@ -3,10 +3,10 @@
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./components/app-sidebar";
 import { authClient } from "@/lib/auth-client";
-import { Loading } from "@/components/loading";
 import { useRouter } from "next/navigation";
 import { SiteHeader } from "./components/site-header";
 import { useEffect } from "react";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function MainLayout() {
   const { data: session, isPending, error } = authClient.useSession();
@@ -21,7 +21,7 @@ export default function MainLayout() {
   if (isPending) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loading className="h-8 w-8" />
+        <Spinner className="size-8" />
       </div>
     );
   }
